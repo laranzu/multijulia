@@ -11,7 +11,7 @@ import sys, time
 from complex import ComplexSIMD
 from python import Python
 
-alias Complex32 = ComplexSIMD[DType.float32, 1]
+comptime Complex32 = ComplexSIMD[DType.float32, 1]
 
 fn julia(x: Float32, y: Float32, size: Float32, scale: Float32, iterations: Int) -> UInt32:
     var jx: Float32 = (x - size/2.0) / (scale * 0.5 * size)
@@ -34,7 +34,7 @@ def main():
     # Need Pillow
     Image = Python.import_module("PIL.Image")
     # Setup
-    size = 4096 # 1024
+    size = 1024 # 4096
     args = sys.argv()
     if len(args) > 1:
         N = Int(args[1])

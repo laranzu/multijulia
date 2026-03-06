@@ -14,13 +14,13 @@ from python import Python
 
 import gpu
 from gpu.host import DeviceContext, DeviceAttribute, HostBuffer, DeviceBuffer
-from gpu.id import block_dim, block_idx, thread_idx
+from gpu import block_dim, block_idx, thread_idx
 
-alias Complex32 = ComplexSIMD[DType.float32, 1]
+comptime Complex32 = ComplexSIMD[DType.float32, 1]
 
-fn julia(pixels: UnsafePointer[UInt32], size: Float32, scale: Float32, iterations: Int):
-    x: Float32 = block_idx.x * block_dim.x + thread_idx.x;
-    y: Float32 = block_idx.y;
+fn julia(pixels: UnsafePointer[UInt32, MutAnyOrigin], size: Float32, scale: Float32, iterations: Int):
+    x: Float32 = Float32(block_idx.x * block_dim.x + thread_idx.x);
+    y: Float32 = Float32(block_idx.y);
     jx: Float32 = (x - size/2.0) / (scale * 0.5 * size)
     jy: Float32 = (y - size/2.0) / (scale * 0.5 * size)
     c: Complex32 = Complex32(-0.8, 0.156)
@@ -40,7 +40,7 @@ fn fractal(ctx: DeviceContext, size: Int, iterations: Int) raises -> HostBuffer[
     hostPix = ctx.enqueue_create_host_buffer[DType.uint32](size * size)
     # GPU side config
     pix = ctx.enqueue_create_buffer[DType.uint32](size * size)
-    kernel = ctx.compile_function_checked[julia, julia]()
+    kernel = ctx.compile_function[julia, julia]()
     # How many threads? Should be at least 1024
     nBlocks: Int = 1
     maxThread = ctx.get_attribute(DeviceAttribute.MAX_THREADS_PER_BLOCK) # 1024
@@ -48,7 +48,7 @@ fn fractal(ctx: DeviceContext, size: Int, iterations: Int) raises -> HostBuffer[
         nBlocks += 1
     for i in range(iterations):
         print(i + 1)
-        ctx.enqueue_function_checked(kernel, pix, Float32(size), Float32(10.0), 200,
+        ctx.enqueue_function(kernel, pix, Float32(size), Float32(10.0), 200,
                 grid_dim=(nBlocks, size),
                 block_dim=size // nBlocks)
         ctx.enqueue_copy(dst_buf=hostPix, src_buf=pix)
