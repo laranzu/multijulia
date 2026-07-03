@@ -25,7 +25,8 @@ def julia(x, y, size, scale, iterations):
             return 0
     return 0x0000FF
 
-def fractal(pixels, size):
+def fractal(img, size):
+    pixels = img.load()
     for y in range(size):
         for x in range(size):
             pixels[(x, y)] = julia(x, y, size, 10, 200)
@@ -40,12 +41,11 @@ def main(argv):
     # Create image from (last) fractal
     fName = "./fractal.png"
     img = Image.new("RGB", (size, size), "white")
-    pix = img.load()
     # Just measure fractal creation
     timeBase = time.time()
     for i in range(N):
         print(i + 1)
-        fractal(pix, size)
+        fractal(img, size)
     now = time.time()
     print("Average generate time {:4.3f} secs".format((now - timeBase)/N))
     # Done
