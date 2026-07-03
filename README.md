@@ -41,6 +41,13 @@ two source files so shouldn't be hard to load into an IDE.
 The Python and both Mojo versions need Pillow, the Python Image Library.
 Pip install into your virtual environment, or equivalent.
 
+For Mojo, you can at time of development just
+
+    pip install mojo mojo-compiler
+
+You don't need the full MAX/Magic environment.
+
+
 #### Results
 
 My system has an Intel i7-9700 @ 3Ghz CPU and an NVIDIA RTX A2000 GPU.
@@ -54,5 +61,4 @@ the C++ code to use GLM and SIMD intrinsics didn't change the performance.
 
 3. The Mojo version on the GPU is really fast. Again not surprising,
 the real lesson I learned is how easy it is to write GPU code in Mojo.
-Mojo really is "CUDA for Python programmers" <br>
 (However, converting Mojo arrays into Python for saving the PNG is very slow.)
