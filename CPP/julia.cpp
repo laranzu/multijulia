@@ -19,13 +19,13 @@
 
 #include "fail.h"
 
-uint32_t julia(int x, int y, int size, float scale, int iterations)
+uint32_t julia(int x, int y, int size, double scale, int iterations)
 {
-    float jx = (x - (size * 0.5)) / (scale * 0.5 * size);
-    float jy = (y - (size * 0.5)) / (scale * 0.5 * size);
-    std::complex<float> c(-0.8, 0.156);
-    std::complex<float> a(jx, jy);
-    float m;
+    double jx = (x - (size * 0.5)) / (scale * 0.5 * size);
+    double jy = (y - (size * 0.5)) / (scale * 0.5 * size);
+    std::complex<double> c(-0.8, 0.156);
+    std::complex<double> a(jx, jy);
+    double m;
 
     for (int i = 0; i < iterations; i += 1) {
         a = a * a + c;
