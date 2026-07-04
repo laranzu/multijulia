@@ -32,20 +32,21 @@ def makeGrid(size, scale):
     grid = rGrid + iGrid * complex(0, 1)
     return grid
 
-def julia(x, y, size, scale, iterations):
-    jx = (x - size/2.0) / (scale * 0.5 * size)
-    jy = (y - size/2.0) / (scale * 0.5 * size)
-    c = complex(-0.8, 0.156)
-    a = complex(jx, jy)
+def julia(grid, c, iterations):
+    """Julia calculation over grid"""
     for i in range(iterations):
-        a = a * a + c
-        m = abs(a)
-        if m >= 4:
-            return 0
-    return 0x0000FF
+        # Stop calculating point when value reaches 4
+        mask = np.abs(grid) < 4.0
+        grid = np.square(grid[mask]) + c
+    return grid
 
-def fractal(size):
-    img = Image.new("RGB", (size, size), "white")
+def fractal(size, scale=10.0, iterations=200):
+    """Generate fractal image size x size pixels"""
+    # Fractal math
+    grid = makeGrid(size, scale)
+    c = complex(-0.8, 0.156)
+    julia(grid, c, iterations)
+    return Image.new("RGB", (size, size), "white")
     pixels = img.load()
     for y in range(size):
         for x in range(size):
@@ -59,9 +60,6 @@ def main(argv):
         N = int(argv[1])
     else:
         N = 10
-    grid = makeGrid(8, 10)
-    print(grid)
-    return
     # Just measure fractal creation
     timeBase = time.time()
     for i in range(N):
