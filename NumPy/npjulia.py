@@ -30,6 +30,7 @@ def makeGrid(size, scale):
     iGrid = fixed.reshape((size, 1)) * varying.reshape((1, size))
     # Combine
     grid = rGrid + iGrid * complex(0, 1)
+    print(grid.shape)
     return grid
 
 def julia(grid, c, iterations):
@@ -37,7 +38,7 @@ def julia(grid, c, iterations):
     for i in range(iterations):
         # Stop calculating point when value reaches 4
         mask = np.abs(grid) < 4.0
-        grid = np.square(grid[mask]) + c
+        grid[mask]= np.square(grid[mask]) + c
     return grid
 
 def fractal(size, scale=10.0, iterations=200):
@@ -45,12 +46,16 @@ def fractal(size, scale=10.0, iterations=200):
     # Fractal math
     grid = makeGrid(size, scale)
     c = complex(-0.8, 0.156)
-    julia(grid, c, iterations)
-    return Image.new("RGB", (size, size), "white")
+    grid = julia(grid, c, iterations)
+    print(grid.shape)
+    img = Image.new("RGB", (size, size), "white")
     pixels = img.load()
     for y in range(size):
         for x in range(size):
-            pixels[(x, y)] = julia(x, y, size, 10, 200)
+            if np.abs(grid[x, y]) < 4.0:
+                pixels[(x, y)] = 0x0000FF
+            else:
+                pixels[(x, y)] = 0x000000
     return img
 
 def main(argv):
