@@ -1,7 +1,7 @@
 
 ## Julia Set generation in C++, Python, Mojo, Mojo GPU
 
-Version 1.0 October 2025
+Version 1.1 July 2026 - now with `numpy`
 
 Written by Hugh/Hugo Fisher <br/>
 AKA laranzu <br/>
@@ -11,12 +11,14 @@ hugo.fisher@gmail.com
 Released under Creative Commons CC0 Public Domain Dedication.
 This code may be freely copied and modified for any purpose
 
-Here are four programs to generate the Julia set, a fractal image.
+Here are several programs to generate the Julia set, a fractal image.
 Each of them is a command line program which generates an image N
 (default 10) times, and saves the last one to a PNG file for checking.
 They also report the average time to generate each image.
 
 - Python (`py`), without any acceleration.
+
+- Python (`NumPy`) using numpy arrays.
 
 - C++ (`CPP`) again without any special libraries.
 
@@ -26,7 +28,7 @@ They also report the average time to generate each image.
 
 None of these programs are particularly optimised, which is the point.
 This is a comparison between the same algorithm written by an average
-programmer implemented in four different programs.
+programmer implemented in different programs.
 
 #### Dependencies
 
@@ -38,8 +40,12 @@ always a file `fractal.png`
 The C++ version needs `libpng-devel`. There's a Makefile, but it is only
 two source files so shouldn't be hard to load into an IDE.
 
-The Python and both Mojo versions need Pillow, the Python Image Library.
+The Python and Mojo versions all need Pillow, the Python Image Library.
 Pip install into your virtual environment, or equivalent.
+
+The Python numpy version needs `numpy` as well.
+
+#### Mojo
 
 For Mojo, you can at time of development just
 
@@ -47,18 +53,29 @@ For Mojo, you can at time of development just
 
 You don't need the full MAX/Magic environment.
 
+**However** the Mojo code was written end of 2025. Since then Modular,
+the company that owns Mojo, have changed direction and declared that
+now the goal is to make Mojo a system programming language and Python
+source compatibility is less important.
+For me, Mojo has changed from "Python but really fast" to "Rust without
+curly braces" and I've given up on it. The code here might not compile
+any more, and I'm not going to bother fixing it.
+
 
 #### Results
 
 My system has an Intel i7-9700 @ 3Ghz CPU and an NVIDIA RTX A2000 GPU.
 
-1. The Python version is very slow, the C++ version is a lot faster.
-No surprise there.
+1. The Python version is very slow, the C++ version is a lot faster by
+more than an order of magnitude. No surprise there.
 
-2. The Mojo version, on the CPU, is faster than C++! While I didn't try to
+1. Python with numpy is a lot faster than Python. C++ is only three
+times as fast.
+
+1. The Mojo version, on the CPU, is faster than C++! While I didn't try to
 optimise the code, I don't think it's particularly bad either. And rewriting
 the C++ code to use GLM and SIMD intrinsics didn't change the performance.
 
-3. The Mojo version on the GPU is really fast. Again not surprising,
+1. The Mojo version on the GPU is really fast. Again not surprising,
 the real lesson I learned is how easy it is to write GPU code in Mojo.
 (However, converting Mojo arrays into Python for saving the PNG is very slow.)
