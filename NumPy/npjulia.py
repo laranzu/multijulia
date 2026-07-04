@@ -30,7 +30,6 @@ def makeGrid(size, scale):
     iGrid = fixed.reshape((size, 1)) * varying.reshape((1, size))
     # Combine
     grid = rGrid + iGrid * complex(0, 1)
-    print(grid.shape)
     return grid
 
 def julia(grid, c, iterations):
@@ -47,20 +46,21 @@ def fractal(size, scale=10.0, iterations=200):
     grid = makeGrid(size, scale)
     c = complex(-0.8, 0.156)
     grid = julia(grid, c, iterations)
-    print(grid.shape)
-    img = Image.new("RGB", (size, size), "white")
-    pixels = img.load()
-    for y in range(size):
-        for x in range(size):
-            if np.abs(grid[x, y]) < 4.0:
-                pixels[(x, y)] = 0x0000FF
-            else:
-                pixels[(x, y)] = 0x000000
+    # Image
+    # Start with 2D array of ABGR values
+    points = np.ndarray((size, size), dtype=np.uint32)
+    points.fill(0xFF000000) # Solid black
+    # Color points from last generation
+    mask = np.abs(grid) < 4.0
+    points[mask] = 0xFF0000FF
+    # PIL wants individual byte elements
+    pixels = points.view(dtype=np.uint8).reshape((size, size, 4))
+    img = Image.fromarray(pixels, mode="RGBA")
     return img
 
 def main(argv):
     # Setup
-    size = 1024 # 4096
+    size = 4096 # 1024 # 4096
     if len(argv) > 1:
         N = int(argv[1])
     else:
