@@ -32,11 +32,13 @@ def makeGrid(size, scale):
     grid = rGrid + iGrid * complex(0, 1)
     return grid
 
+JULIA_LIMIT = 4.0
+
 def julia(grid, c, iterations):
     """Julia calculation over grid"""
     for i in range(iterations):
         # Stop calculating point when value reaches 4
-        mask = np.abs(grid) < 4.0
+        mask = np.abs(grid) < JULIA_LIMIT
         grid[mask]= np.square(grid[mask]) + c
     return grid
 
@@ -51,7 +53,7 @@ def fractal(size, scale=10.0, iterations=200):
     points = np.ndarray((size, size), dtype=np.uint32)
     points.fill(0xFF000000) # Solid black
     # Color points from last generation
-    mask = np.abs(grid) < 4.0
+    mask = np.abs(grid) < JULIA_LIMIT
     points[mask] = 0xFF0000FF
     # PIL wants individual byte elements
     pixels = points.view(dtype=np.uint8).reshape((size, size, 4))
@@ -60,7 +62,7 @@ def fractal(size, scale=10.0, iterations=200):
 
 def main(argv):
     # Setup
-    size = 4096 # 1024 # 4096
+    size = 1024 # 4096
     if len(argv) > 1:
         N = int(argv[1])
     else:
