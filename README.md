@@ -27,7 +27,7 @@ They also report the average time to generate each image.
 - Mojo (`MojoGPU`) running on a GPU.
 
 None of these programs are particularly optimised, which is the point.
-This is a comparison between the same algorithm written by an average
+This is a comparison between the same algorithm written by a competent
 programmer implemented in different programs.
 
 #### Dependencies
