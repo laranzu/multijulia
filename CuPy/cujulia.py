@@ -24,7 +24,7 @@ from numba import cuda as kernel
 
 @kernel.jit(numba.void(numba.uint32[:], numba.int64, numba.float64, numba.complex128, numba.int64))
 def julia(points, size, scale, c, iterations):
-    """Julia calculation for single point, return color"""
+    """Julia calculation for single point in array"""
     # Point coords
     x = kernel.blockIdx.x * kernel.blockDim.x + kernel.threadIdx.x
     y = kernel.blockIdx.y
@@ -32,27 +32,26 @@ def julia(points, size, scale, c, iterations):
     half = float(size / 2)
     jx = (float(x) - half) / (scale * half)
     jy = (float(y) - half) / (scale * half)
-    idx = y * size + x
-    points[idx] = 0xFF0000FF
-    #c = complex(-0.8, 0.156)
     # a = complex(jx, jy)
-    # color = 0x0000FF
+    rgba = 0xFF0000FF
     # for i in range(iterations):
     #     a = a * a + c
     #     m = abs(a)
     #     if m >= 4:
     #         color = 0
     #         break
+    idx = y * size + x
+    points[idx] = rgba
 
 def fractal(gpu, size, scale=10.0, iterations=200):
     """Create fractal image size x size"""
     # GPU side array
     gpuPoints = cupy.empty(size * size, dtype=cupy.uint32)
-    c = complex(-0.8, 0.156)
     # One or more blocks per row
     maxThread = gpu.properties.max_threads_per_block
     perRow = int(math.ceil(size / maxThread))
     # Invoke and wait for result
+    c = complex(-0.8, 0.156)
     julia[(perRow, size), maxThread](gpuPoints, size, scale, c, iterations)
     kernel.synchronize()
     # Copy back from GPU
@@ -71,7 +70,7 @@ def main(argv):
     else:
         raise RuntimeError("Requires CUDA GPU")
     # Setup
-    size = 4096 # 1024 # 4096
+    size = 1024 # 4096
     if len(argv) > 1:
         N = int(argv[1])
     else:
