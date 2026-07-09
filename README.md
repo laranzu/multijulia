@@ -1,7 +1,7 @@
 
 ## Julia Set generation in C++, Python, Mojo, Mojo GPU
 
-Version 1.1 July 2026 - now with `numpy`
+Version 1.2 July 2026 - now with numpy and CUDA Python
 
 Written by Hugh/Hugo Fisher <br/>
 AKA laranzu <br/>
