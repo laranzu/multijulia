@@ -20,6 +20,8 @@ They also report the average time to generate each image.
 
 - Python (`NumPy`) using numpy arrays.
 
+- Python (`CuPy`) using CUDA on GPU.
+
 - C++ (`CPP`) again without any special libraries.
 
 - Mojo (`Mojo`) running on the CPU.
@@ -43,7 +45,17 @@ two source files so shouldn't be hard to load into an IDE.
 The Python and Mojo versions all need Pillow, the Python Image Library.
 Pip install into your virtual environment, or equivalent.
 
-The Python numpy version needs `numpy` as well.
+The Python numpy and CUDA versions needs `numpy` as well.
+
+#### CUDA
+
+You need the CUDA driver, which is independent of Python. Once
+installed run `nvcc --version`. Mine is 12.6.
+
+You can then create a venv and install the corresponding version of
+CuPy, in my case
+
+    pip install cupy-cuda12x
 
 #### Mojo
 
