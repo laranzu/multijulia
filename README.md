@@ -90,10 +90,14 @@ more than an order of magnitude. No surprise there.
 1. Python with numpy is a lot faster than Python. C++ is only three
 times as fast.
 
+1. Fractals are ideal for GPUs, so CUDA Python is ridiculously fast.
+The timing code isn't precise enough for these speeds, so take the reported
+times as approximations.
+
 1. The Mojo version, on the CPU, is faster than C++! While I didn't try to
 optimise the code, I don't think it's particularly bad either. And rewriting
 the C++ code to use GLM and SIMD intrinsics didn't change the performance.
 
-1. The Mojo version on the GPU is really fast. Again not surprising,
+1. The Mojo version on the GPU is again really fast, again not surprising,
 the real lesson I learned is how easy it is to write GPU code in Mojo.
 (However, converting Mojo arrays into Python for saving the PNG is very slow.)

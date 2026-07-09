@@ -32,16 +32,17 @@ def julia(points, size, scale, c, iterations):
     half = float(size / 2)
     jx = (float(x) - half) / (scale * half)
     jy = (float(y) - half) / (scale * half)
-    # a = complex(jx, jy)
-    rgba = 0xFF0000FF
-    # for i in range(iterations):
-    #     a = a * a + c
-    #     m = abs(a)
-    #     if m >= 4:
-    #         color = 0
-    #         break
+    a = complex(jx, jy)
+    # ABGR colors, since everything is little endian now
+    color = 0xFF0000FF
+    for i in range(iterations):
+        a = a * a + c
+        m = abs(a)
+        if m >= 4:
+            color = 0xFF000000
+            break
     idx = y * size + x
-    points[idx] = rgba
+    points[idx] = color
 
 def fractal(gpu, size, scale=10.0, iterations=200):
     """Create fractal image size x size"""
@@ -70,7 +71,7 @@ def main(argv):
     else:
         raise RuntimeError("Requires CUDA GPU")
     # Setup
-    size = 1024 # 4096
+    size = 4096 # 1024 # 4096
     if len(argv) > 1:
         N = int(argv[1])
     else:
