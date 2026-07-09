@@ -19,13 +19,36 @@ import cupy
 from cupy import cuda
 from cuda import core
 
-def fractal(size):
+import numba
+from numba import cuda as kernel
+
+@kernel.jit(numba.void(numba.int64, numba.float64, numba.complex128, numba.int64))
+def julia(size, scale, c, iterations):
+    """Julia calculation for single point, return color"""
+    x = 0
+    y = 0
+    jx = (x - size/2.0) / (scale * 0.5 * size)
+    jy = (y - size/2.0) / (scale * 0.5 * size)
+    #c = complex(-0.8, 0.156)
+    a = complex(jx, jy)
+    color = 0x0000FF
+    for i in range(iterations):
+        a = a * a + c
+        m = abs(a)
+        if m >= 4:
+            color = 0
+            break
+
+def fractal(size, scale=10.0, iterations=200):
     """Create fractal image size x size"""
-    img = Image.new("RGB", (size, size), "white")
-    # pixels = img.load()
-    # for y in range(size):
-    #     for x in range(size):
-    #         pixels[(x, y)] = julia(x, y, size, 10, 200)
+    # GPU side array
+    gpuPixels = cupy.empty((size, size), dtype=cupy.uint32)
+    c = complex(-0.8, 0.156)
+    # Copy back from GPU
+    points = cupy.asnumpy(gpuPixels)
+    # PIL wants individual byte elements
+    pixels = points.view(dtype=np.uint8).reshape((size, size, 4))
+    img = Image.fromarray(pixels, mode="RGBA")
     return img
 
 def main(argv):

@@ -42,7 +42,7 @@ always a file `fractal.png`
 The C++ version needs `libpng-devel`. There's a Makefile, but it is only
 two source files so shouldn't be hard to load into an IDE.
 
-The Python and Mojo versions all need Pillow, the Python Image Library.
+The Python and Mojo versions all need `pillow`, the Python Image Library.
 Pip install into your virtual environment, or equivalent.
 
 The Python numpy and CUDA versions needs `numpy` as well.
@@ -53,9 +53,14 @@ You need the CUDA driver, which is independent of Python. Once
 installed run `nvcc --version`. Mine is 12.6.
 
 You can then create a venv and install the corresponding version of
-CuPy, in my case
+CuPy, and numba for compiling Python functions into GPU kernels.
 
-    pip install cupy-cuda12x
+    pip install cupy-cuda12x numba
+
+Numba, when installed from pip, needs env var `CUDA_HOME` pointing
+to where the CUDA driver stuff lives.
+
+    export CUDA_HOME="/usr/local/cuda-12.6"
 
 #### Mojo
 
