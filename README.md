@@ -52,7 +52,8 @@ The Python numpy and CUDA versions needs `numpy` as well.
 You need the CUDA driver, which is independent of Python. Once
 installed run `nvcc --version`. Mine is 12.6.
 
-You can then create a venv and install the corresponding version of
+You can then create a venv and install the corresponding major
+version of
 CuPy, and numba for compiling Python functions into GPU kernels.
 
     pip install cupy-cuda12x numba

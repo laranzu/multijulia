@@ -8,7 +8,7 @@
     This code may be freely copied and modified for any purpose
 """
 
-import sys, time
+import math, sys, time
 
 import PIL
 from PIL import Image
@@ -22,30 +22,41 @@ from cuda import core
 import numba
 from numba import cuda as kernel
 
-@kernel.jit(numba.void(numba.int64, numba.float64, numba.complex128, numba.int64))
-def julia(size, scale, c, iterations):
+@kernel.jit(numba.void(numba.uint32[:], numba.int64, numba.float64, numba.complex128, numba.int64))
+def julia(points, size, scale, c, iterations):
     """Julia calculation for single point, return color"""
-    x = 0
-    y = 0
-    jx = (x - size/2.0) / (scale * 0.5 * size)
-    jy = (y - size/2.0) / (scale * 0.5 * size)
+    # Point coords
+    x = kernel.blockIdx.x * kernel.blockDim.x + kernel.threadIdx.x
+    y = kernel.blockIdx.y
+    # Convert to origin at centre, divided by scale
+    half = float(size / 2)
+    jx = (float(x) - half) / (scale * half)
+    jy = (float(y) - half) / (scale * half)
+    idx = y * size + x
+    points[idx] = 0xFF0000FF
     #c = complex(-0.8, 0.156)
-    a = complex(jx, jy)
-    color = 0x0000FF
-    for i in range(iterations):
-        a = a * a + c
-        m = abs(a)
-        if m >= 4:
-            color = 0
-            break
+    # a = complex(jx, jy)
+    # color = 0x0000FF
+    # for i in range(iterations):
+    #     a = a * a + c
+    #     m = abs(a)
+    #     if m >= 4:
+    #         color = 0
+    #         break
 
-def fractal(size, scale=10.0, iterations=200):
+def fractal(gpu, size, scale=10.0, iterations=200):
     """Create fractal image size x size"""
     # GPU side array
-    gpuPixels = cupy.empty((size, size), dtype=cupy.uint32)
+    gpuPoints = cupy.empty(size * size, dtype=cupy.uint32)
     c = complex(-0.8, 0.156)
+    # One or more blocks per row
+    maxThread = gpu.properties.max_threads_per_block
+    perRow = int(math.ceil(size / maxThread))
+    # Invoke and wait for result
+    julia[(perRow, size), maxThread](gpuPoints, size, scale, c, iterations)
+    kernel.synchronize()
     # Copy back from GPU
-    points = cupy.asnumpy(gpuPixels)
+    points = cupy.asnumpy(gpuPoints)
     # PIL wants individual byte elements
     pixels = points.view(dtype=np.uint8).reshape((size, size, 4))
     img = Image.fromarray(pixels, mode="RGBA")
@@ -54,13 +65,13 @@ def fractal(size, scale=10.0, iterations=200):
 def main(argv):
     # Need a GPU
     if core.system.get_num_devices() > 0:
-        dev = core.Device(0)
-        print("GPU {}".format(dev.name))
-        dev.set_current()
+        gpu = core.Device(0)
+        print("GPU {}".format(gpu.name))
+        gpu.set_current()
     else:
         raise RuntimeError("Requires CUDA GPU")
     # Setup
-    size = 1024 # 4096
+    size = 4096 # 1024 # 4096
     if len(argv) > 1:
         N = int(argv[1])
     else:
@@ -69,7 +80,7 @@ def main(argv):
     timeBase = time.time()
     for i in range(N):
         print(i + 1)
-        img = fractal(size)
+        img = fractal(gpu, size)
     now = time.time()
     print("Average generate time {:4.3f} secs".format((now - timeBase)/N))
     # Save last fractal for checking
